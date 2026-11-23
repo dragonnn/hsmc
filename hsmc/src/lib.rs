@@ -218,18 +218,18 @@ macro_rules! __chart_observe {
             $sink.push($crate::TraceEvent::Started { chart_hash: $hash });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] started chart_hash={=u64:#x}",
             $chart,
             $hash
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] started chart_hash={:#x}",
             $chart,
             $hash
         );
-        $crate::__chart_trace_tracing!(info, chart = $chart, chart_hash = $hash, "started");
+        $crate::__chart_trace_tracing!(trace, chart = $chart, chart_hash = $hash, "started");
     }};
 
     // ── EnterBegan / Entered ───────────────────────────────────────
@@ -237,17 +237,17 @@ macro_rules! __chart_observe {
         $crate::__chart_if_journal! {
             $sink.push($crate::TraceEvent::EnterBegan { state: $sid });
         }
-        $crate::__chart_trace_defmt!(info, "[statechart:{}] entering state={}", $chart, $sname);
-        $crate::__chart_trace_log!(info, "[statechart:{}] entering state={}", $chart, $sname);
-        $crate::__chart_trace_tracing!(info, chart = $chart, state = $sname, "entering");
+        $crate::__chart_trace_defmt!(trace, "[statechart:{}] entering state={}", $chart, $sname);
+        $crate::__chart_trace_log!(trace, "[statechart:{}] entering state={}", $chart, $sname);
+        $crate::__chart_trace_tracing!(trace, chart = $chart, state = $sname, "entering");
     }};
     (Entered, $sink:expr, $chart:literal, $sid:expr, $sname:expr) => {{
         $crate::__chart_if_journal! {
             $sink.push($crate::TraceEvent::Entered { state: $sid });
         }
-        $crate::__chart_trace_defmt!(info, "[statechart:{}] entered state={}", $chart, $sname);
-        $crate::__chart_trace_log!(info, "[statechart:{}] entered state={}", $chart, $sname);
-        $crate::__chart_trace_tracing!(info, chart = $chart, state = $sname, "entered");
+        $crate::__chart_trace_defmt!(trace, "[statechart:{}] entered state={}", $chart, $sname);
+        $crate::__chart_trace_log!(trace, "[statechart:{}] entered state={}", $chart, $sname);
+        $crate::__chart_trace_tracing!(trace, chart = $chart, state = $sname, "entered");
     }};
 
     // ── ExitBegan / Exited ─────────────────────────────────────────
@@ -255,17 +255,17 @@ macro_rules! __chart_observe {
         $crate::__chart_if_journal! {
             $sink.push($crate::TraceEvent::ExitBegan { state: $sid });
         }
-        $crate::__chart_trace_defmt!(info, "[statechart:{}] exiting state={}", $chart, $sname);
-        $crate::__chart_trace_log!(info, "[statechart:{}] exiting state={}", $chart, $sname);
-        $crate::__chart_trace_tracing!(info, chart = $chart, state = $sname, "exiting");
+        $crate::__chart_trace_defmt!(trace, "[statechart:{}] exiting state={}", $chart, $sname);
+        $crate::__chart_trace_log!(trace, "[statechart:{}] exiting state={}", $chart, $sname);
+        $crate::__chart_trace_tracing!(trace, chart = $chart, state = $sname, "exiting");
     }};
     (Exited, $sink:expr, $chart:literal, $sid:expr, $sname:expr) => {{
         $crate::__chart_if_journal! {
             $sink.push($crate::TraceEvent::Exited { state: $sid });
         }
-        $crate::__chart_trace_defmt!(info, "[statechart:{}] exited state={}", $chart, $sname);
-        $crate::__chart_trace_log!(info, "[statechart:{}] exited state={}", $chart, $sname);
-        $crate::__chart_trace_tracing!(info, chart = $chart, state = $sname, "exited");
+        $crate::__chart_trace_defmt!(trace, "[statechart:{}] exited state={}", $chart, $sname);
+        $crate::__chart_trace_log!(trace, "[statechart:{}] exited state={}", $chart, $sname);
+        $crate::__chart_trace_tracing!(trace, chart = $chart, state = $sname, "exited");
     }};
 
     // ── ActionInvoked (Entry / Exit / Handler) ─────────────────────
@@ -454,7 +454,7 @@ macro_rules! __chart_observe {
             });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] transition-begin from={} to={} reason={}",
             $chart,
             $fname,
@@ -462,7 +462,7 @@ macro_rules! __chart_observe {
             $rname
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] transition-begin from={} to={} reason={}",
             $chart,
             $fname,
@@ -470,7 +470,7 @@ macro_rules! __chart_observe {
             $rname
         );
         $crate::__chart_trace_tracing!(
-            info,
+            trace,
             chart = $chart,
             from = $fname,
             to = $tname,
@@ -490,21 +490,21 @@ macro_rules! __chart_observe {
             });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] transition-complete from={} to={}",
             $chart,
             $fname,
             $tname
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] transition-complete from={} to={}",
             $chart,
             $fname,
             $tname
         );
         $crate::__chart_trace_tracing!(
-            info,
+            trace,
             chart = $chart,
             from = $fname,
             to = $tname,
@@ -541,21 +541,21 @@ macro_rules! __chart_observe {
             });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] event-delivered name={} handler={}",
             $chart,
             $ename,
             $sname
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] event-delivered name={} handler={}",
             $chart,
             $ename,
             $sname
         );
         $crate::__chart_trace_tracing!(
-            info,
+            trace,
             chart = $chart,
             name = $ename,
             handler = $sname,
@@ -703,21 +703,21 @@ macro_rules! __chart_observe {
             });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] timer-fired state={} timer={}",
             $chart,
             $sname,
             $tname
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] timer-fired state={} timer={}",
             $chart,
             $sname,
             $tname
         );
         $crate::__chart_trace_tracing!(
-            info,
+            trace,
             chart = $chart,
             state = $sname,
             timer = $tname,
@@ -731,26 +731,31 @@ macro_rules! __chart_observe {
             $sink.push($crate::TraceEvent::TerminateRequested { event: $eid });
         }
         $crate::__chart_trace_defmt!(
-            info,
+            trace,
             "[statechart:{}] terminate-requested event={}",
             $chart,
             $ename
         );
         $crate::__chart_trace_log!(
-            info,
+            trace,
             "[statechart:{}] terminate-requested event={}",
             $chart,
             $ename
         );
-        $crate::__chart_trace_tracing!(info, chart = $chart, event = $ename, "terminate-requested");
+        $crate::__chart_trace_tracing!(
+            trace,
+            chart = $chart,
+            event = $ename,
+            "terminate-requested"
+        );
     }};
     (Terminated, $sink:expr, $chart:literal) => {{
         $crate::__chart_if_journal! {
             $sink.push($crate::TraceEvent::Terminated);
         }
-        $crate::__chart_trace_defmt!(info, "[statechart:{}] terminated", $chart);
-        $crate::__chart_trace_log!(info, "[statechart:{}] terminated", $chart);
-        $crate::__chart_trace_tracing!(info, chart = $chart, "terminated");
+        $crate::__chart_trace_defmt!(trace, "[statechart:{}] terminated", $chart);
+        $crate::__chart_trace_log!(trace, "[statechart:{}] terminated", $chart);
+        $crate::__chart_trace_tracing!(trace, chart = $chart, "terminated");
     }};
 }
 
