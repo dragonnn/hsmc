@@ -647,7 +647,7 @@ fn emit_embassy_race_arms_with_channel(ir: &Ir) -> Vec<TokenStream> {
                 sid, n
             );
             arms.push(quote! {
-                Some(#sid) => { ::core::compile_error!(#msg); unreachable!() }
+                Some(#sid) => { ::core::compile_error!(#msg); ::core::unreachable!() }
             });
             continue;
         }
@@ -713,7 +713,7 @@ fn emit_embassy_race_arms_timer_only(ir: &Ir) -> Vec<TokenStream> {
                 sid, n
             );
             arms.push(quote! {
-                Some(#sid) => { ::core::compile_error!(#msg); unreachable!() }
+                Some(#sid) => { ::core::compile_error!(#msg); ::core::unreachable!() }
             });
             continue;
         }
@@ -1675,7 +1675,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             VariantKind::Struct => quote! { #ev_ty::#tev { .. } },
         };
         quote! {
-            if matches!(__ev, #pat) { return TerminateCheck::Yes; }
+            if ::core::matches!(__ev, #pat) { return TerminateCheck::Yes; }
         }
     } else {
         quote! {}
@@ -2507,9 +2507,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
             let mut i = 0usize;
             while i < __PATH_RANGE.len() {
                 let (s, m, e) = __PATH_RANGE[i];
-                assert!(s as usize <= m as usize, "__PATH_RANGE: s > m");
-                assert!(m as usize <= e as usize, "__PATH_RANGE: m > e");
-                assert!(
+                ::core::assert!(s as usize <= m as usize, "__PATH_RANGE: s > m");
+                ::core::assert!(m as usize <= e as usize, "__PATH_RANGE: m > e");
+                ::core::assert!(
                     e as usize <= __PATH_DATA.len(),
                     "__PATH_RANGE: e past __PATH_DATA end"
                 );
@@ -2521,8 +2521,8 @@ pub fn generate(ir: &Ir) -> TokenStream {
             let mut i = 0usize;
             while i < __TERMINATE_RANGE.len() {
                 let (s, e) = __TERMINATE_RANGE[i];
-                assert!(s as usize <= e as usize, "__TERMINATE_RANGE: s > e");
-                assert!(
+                ::core::assert!(s as usize <= e as usize, "__TERMINATE_RANGE: s > e");
+                ::core::assert!(
                     e as usize <= __TERMINATE_DATA.len(),
                     "__TERMINATE_RANGE: e past __TERMINATE_DATA end"
                 );
@@ -2534,7 +2534,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             let mut i = 0usize;
             while i < __DEFAULT_CHILD.len() {
                 if let Some(t) = __DEFAULT_CHILD[i] {
-                    assert!(
+                    ::core::assert!(
                         (t as usize) < __DEFAULT_CHILD.len(),
                         "__DEFAULT_CHILD: target id past N_STATES"
                     );
@@ -2545,7 +2545,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             // __PATH_DATA itself: every state id stored is < N_STATES.
             let mut i = 0usize;
             while i < __PATH_DATA.len() {
-                assert!(
+                ::core::assert!(
                     (__PATH_DATA[i] as usize) < __DEFAULT_CHILD.len(),
                     "__PATH_DATA: state id past N_STATES"
                 );
@@ -2555,7 +2555,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             // __TERMINATE_DATA: same.
             let mut i = 0usize;
             while i < __TERMINATE_DATA.len() {
-                assert!(
+                ::core::assert!(
                     (__TERMINATE_DATA[i] as usize) < __DEFAULT_CHILD.len(),
                     "__TERMINATE_DATA: state id past N_STATES"
                 );
@@ -2569,7 +2569,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         fn __state_id_to_public(id: u16) -> #state_enum_name {
             match id {
                 #(#state_id_to_variant_arms)*
-                _ => panic!("internal: state id {} has no public variant", id),
+                _ => ::core::panic!("internal: state id {} has no public variant", id),
             }
         }
 
@@ -2773,7 +2773,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 if let Some(ev) = self.queue.pop_front() {
                     let __ev_id = __event_to_id(&ev);
                     #observe_event_received
-                    if matches!(__check_terminate(&ev), TerminateCheck::Yes) {
+                    if ::core::matches!(__check_terminate(&ev), TerminateCheck::Yes) {
                         #observe_terminate_requested
                         self.do_terminate();
                         return None;
@@ -2796,7 +2796,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                             // expressed at runtime in debug builds — every
                             // hsmc behavior test exercises this site, so a
                             // codegen invariant break trips it loudly.
-                            debug_assert!(__dispatch_idx < __DISPATCH.len());
+                            ::core::debug_assert!(__dispatch_idx < __DISPATCH.len());
                             let (__handler_state, __actions, __target) = unsafe {
                                 *__DISPATCH.get_unchecked(__dispatch_idx)
                             };
@@ -2839,7 +2839,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 if let Some(ev) = self.queue.pop_front() {
                     let __ev_id = __event_to_id(&ev);
                     #observe_event_received
-                    if matches!(__check_terminate(&ev), TerminateCheck::Yes) {
+                    if ::core::matches!(__check_terminate(&ev), TerminateCheck::Yes) {
                         #observe_terminate_requested
                         self.do_terminate().await;
                         return None;
@@ -3079,9 +3079,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 // The triple (s, m, e) was emitted at codegen with the
                 // invariant 0 <= s <= m <= e <= __PATH_DATA.len(), so the
                 // two slice ranges are in-bounds.
-                debug_assert!(idx < __PATH_RANGE.len());
+                ::core::debug_assert!(idx < __PATH_RANGE.len());
                 let (s, m, e) = unsafe { *__PATH_RANGE.get_unchecked(idx) };
-                debug_assert!((s as usize) <= (m as usize) && (m as usize) <= (e as usize) && (e as usize) <= __PATH_DATA.len());
+                ::core::debug_assert!((s as usize) <= (m as usize) && (m as usize) <= (e as usize) && (e as usize) <= __PATH_DATA.len());
                 let exit_path = unsafe {
                     __PATH_DATA.get_unchecked(s as usize..m as usize)
                 };
@@ -3215,7 +3215,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 while let Some(cur) = self.current {
                     // SAFETY: cur is a state id < #n_states (codegen
                     // invariant — see __DISPATCH lookup safety note).
-                    debug_assert!((cur as usize) < __DEFAULT_CHILD.len());
+                    ::core::debug_assert!((cur as usize) < __DEFAULT_CHILD.len());
                     let target = match unsafe { *__DEFAULT_CHILD.get_unchecked(cur as usize) } {
                         Some(t) => t,
                         None => return,
@@ -3237,7 +3237,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             async fn follow_defaults(&mut self) {
                 while let Some(cur) = self.current {
                     // SAFETY: see sync branch — same invariant.
-                    debug_assert!((cur as usize) < __DEFAULT_CHILD.len());
+                    ::core::debug_assert!((cur as usize) < __DEFAULT_CHILD.len());
                     let target = match unsafe { *__DEFAULT_CHILD.get_unchecked(cur as usize) } {
                         Some(t) => t,
                         None => return,
@@ -3318,9 +3318,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 if let Some(cur) = self.current {
                     // SAFETY: cur < #n_states (codegen invariant). The
                     // (s, e) tuple was emitted with 0 <= s <= e <= len.
-                    debug_assert!((cur as usize) < __TERMINATE_RANGE.len());
+                    ::core::debug_assert!((cur as usize) < __TERMINATE_RANGE.len());
                     let (s, e) = unsafe { *__TERMINATE_RANGE.get_unchecked(cur as usize) };
-                    debug_assert!((s as usize) <= (e as usize) && (e as usize) <= __TERMINATE_DATA.len());
+                    ::core::debug_assert!((s as usize) <= (e as usize) && (e as usize) <= __TERMINATE_DATA.len());
                     let path = unsafe {
                         __TERMINATE_DATA.get_unchecked(s as usize..e as usize)
                     };
@@ -3338,9 +3338,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
             async fn do_terminate(&mut self) {
                 if let Some(cur) = self.current {
                     // SAFETY: see sync branch — same invariant.
-                    debug_assert!((cur as usize) < __TERMINATE_RANGE.len());
+                    ::core::debug_assert!((cur as usize) < __TERMINATE_RANGE.len());
                     let (s, e) = unsafe { *__TERMINATE_RANGE.get_unchecked(cur as usize) };
-                    debug_assert!((s as usize) <= (e as usize) && (e as usize) <= __TERMINATE_DATA.len());
+                    ::core::debug_assert!((s as usize) <= (e as usize) && (e as usize) <= __TERMINATE_DATA.len());
                     let path = unsafe {
                         __TERMINATE_DATA.get_unchecked(s as usize..e as usize)
                     };

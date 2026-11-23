@@ -20,6 +20,7 @@ fn embassy_dependency_features_need_no_caller_features() {
     let mut features = vec!["embassy"];
     for (feature, enabled) in [
         ("journal", cfg!(feature = "journal")),
+        ("trace-defmt", cfg!(feature = "trace-defmt")),
         ("trace-log", cfg!(feature = "trace-log")),
         ("trace-tracing", cfg!(feature = "trace-tracing")),
     ] {
@@ -42,9 +43,15 @@ hsmc = {{ path = {:?}, features = {:?} }}
 embassy-sync = "0.8"
 embassy-time = "0.5"
 embassy-futures = "0.1"
+{}
 "#,
             env!("CARGO_MANIFEST_DIR"),
             features,
+            if cfg!(feature = "trace-defmt") {
+                "defmt = \"1.2.0\""
+            } else {
+                ""
+            },
         ),
     )
     .unwrap();
@@ -55,6 +62,14 @@ embassy-futures = "0.1"
     )
     .unwrap();
     let mut source = include_str!("../examples/embassy_full.rs").to_owned();
+    if cfg!(feature = "trace-defmt") {
+        // Match firmware that imports defmt's assert!/panic! macros globally.
+        source = source.replacen(
+            "use embassy_sync::",
+            "#[macro_use]\nextern crate defmt;\n\nuse embassy_sync::",
+            1,
+        );
+    }
     if cfg!(feature = "journal") {
         source.push_str(
             r#"
