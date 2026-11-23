@@ -52,11 +52,17 @@ statechart! {
     }
 }
 
-impl ScActions for ScActionContext<'_> {
+impl ScParentActions for ScActionContext<'_> {
     async fn p_in(&mut self) {}
     async fn p_out(&mut self) {}
+}
+
+impl ScChildActions for ScActionContext<'_> {
     async fn c_in(&mut self) {}
     async fn c_out(&mut self) {}
+}
+
+impl ScLeafActions for ScActionContext<'_> {
     async fn l_in(&mut self) {}
     async fn l_out(&mut self) {}
 }

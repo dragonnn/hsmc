@@ -16,7 +16,7 @@ M {
 }
 }
 
-impl MActions for MActionContext<'_> {
+impl MAActions for MActionContext<'_> {
     fn e(&mut self) {}
 }
 

@@ -23,7 +23,7 @@ TokM {
 }
 }
 
-impl TokMActions for TokMActionContext<'_> {
+impl TokMAActions for TokMActionContext<'_> {
     async fn a_entry(&mut self) {
         tokio::task::yield_now().await;
         self.log.push("a_entry".into());

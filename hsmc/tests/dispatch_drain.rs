@@ -34,7 +34,7 @@ DispatchM {
 }
 }
 
-impl DispatchMActions for DispatchMActionContext<'_> {
+impl DispatchMNextActions for DispatchMActionContext<'_> {
     async fn mark_entered(&mut self) {
         self.transitioned = self.transitioned.wrapping_add(1);
     }

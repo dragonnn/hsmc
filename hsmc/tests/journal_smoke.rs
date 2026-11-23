@@ -64,18 +64,27 @@ impl JournalProbeActions for JournalProbeActionContext<'_> {
     async fn root_out(&mut self) {
         self.log.push("root_out");
     }
+}
+
+impl JournalProbeIdleActions for JournalProbeActionContext<'_> {
     async fn idle_in(&mut self) {
         self.log.push("idle_in");
     }
     async fn idle_out(&mut self) {
         self.log.push("idle_out");
     }
+}
+
+impl JournalProbeActiveActions for JournalProbeActionContext<'_> {
     async fn active_in(&mut self) {
         self.log.push("active_in");
     }
     async fn active_out(&mut self) {
         self.log.push("active_out");
     }
+}
+
+impl JournalProbeSubActions for JournalProbeActionContext<'_> {
     async fn sub_in(&mut self) {
         self.log.push("sub_in");
     }

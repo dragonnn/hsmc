@@ -33,8 +33,11 @@ M {
 }
 }
 
-impl MActions for MActionContext<'_> {
+impl MOuterActions for MActionContext<'_> {
     fn outer_in(&mut self) {}
+}
+
+impl MInnerActions for MActionContext<'_> {
     fn inner_in(&mut self) {}
 }
 

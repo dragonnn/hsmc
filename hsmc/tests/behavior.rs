@@ -45,6 +45,9 @@ mod t1_1 {
         fn do_post(&mut self) {
             self.log.push("do_post".into());
         }
+    }
+
+    impl T11RedActions for T11ActionContext<'_> {
         fn red_on(&mut self) {
             self.log.push("red_on".into());
         }
@@ -93,12 +96,21 @@ mod t1_2 {
         fn r_entry(&mut self) {
             self.log.push("r_entry".into());
         }
+    }
+
+    impl T12AActions for T12ActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a_entry".into());
         }
+    }
+
+    impl T12BActions for T12ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
+    }
+
+    impl T12CActions for T12ActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
@@ -144,13 +156,16 @@ mod t2 {
         }
         }
 
-    impl T2AActions for T2AActionContext<'_> {
+    impl T2ARedActions for T2AActionContext<'_> {
         fn red_on(&mut self) {
             self.log.push("red_on".into());
         }
         fn red_off(&mut self) {
             self.log.push("red_off".into());
         }
+    }
+
+    impl T2AGreenActions for T2AActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
@@ -216,16 +231,19 @@ mod t3_3 {
         }
         }
 
-    impl T33Actions for T33ActionContext<'_> {
+    impl T33RedActions for T33ActionContext<'_> {
+        fn red_off(&mut self) {
+            self.log.push("red_off".into());
+        }
         fn log_go(&mut self) {
             self.log.push("log_go".into());
         }
         fn prepare(&mut self) {
             self.log.push("prepare".into());
         }
-        fn red_off(&mut self) {
-            self.log.push("red_off".into());
-        }
+    }
+
+    impl T33GreenActions for T33ActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
@@ -263,10 +281,13 @@ mod t2_2 {
         }
         }
 
-    impl T22Actions for T22ActionContext<'_> {
+    impl T22RedActions for T22ActionContext<'_> {
         fn red_off(&mut self) {
             self.log.push("red_off".into());
         }
+    }
+
+    impl T22GreenActions for T22ActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
@@ -311,16 +332,25 @@ mod t4_2 {
         }
         }
 
-    impl T42Actions for T42ActionContext<'_> {
+    impl T42AActions for T42ActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T42BActions for T42ActionContext<'_> {
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T42CActions for T42ActionContext<'_> {
         fn c_exit(&mut self) {
             self.log.push("c_exit".into());
         }
+    }
+
+    impl T42DActions for T42ActionContext<'_> {
         fn d_entry(&mut self) {
             self.log.push("d_entry".into());
         }
@@ -372,12 +402,21 @@ mod t6_1 {
         fn root_exit(&mut self) {
             self.log.push("root_exit".into());
         }
+    }
+
+    impl T61AActions for T61ActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T61BActions for T61ActionContext<'_> {
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T61CActions for T61ActionContext<'_> {
         fn c_exit(&mut self) {
             self.log.push("c_exit".into());
         }
@@ -420,11 +459,14 @@ mod t7_1 {
         }
         }
 
-    impl T71Actions for T71ActionContext<'_> {
+    impl T71AActions for T71ActionContext<'_> {
         fn emit_bar(&mut self) {
             self.log.push("emit_bar".into());
             self.emit(Ev::Bar).unwrap();
         }
+    }
+
+    impl T71BActions for T71ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
@@ -465,6 +507,9 @@ mod t1_3 {
         fn r_entry(&mut self) {
             self.log.push("r_entry".into());
         }
+    }
+
+    impl T13RedActions for T13ActionContext<'_> {
         fn red_on(&mut self) {
             self.log.push("red_on".into());
         }
@@ -500,10 +545,13 @@ mod t2_3 {
         }
         }
 
-    impl T23Actions for T23ActionContext<'_> {
+    impl T23GreenActions for T23ActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
+    }
+
+    impl T23YellowActions for T23ActionContext<'_> {
         fn yellow_on(&mut self) {
             self.log.push("yellow_on".into());
         }
@@ -551,16 +599,25 @@ mod t2_4 {
         }
         }
 
-    impl T24Actions for T24ActionContext<'_> {
+    impl T24AActions for T24ActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T24BActions for T24ActionContext<'_> {
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T24CActions for T24ActionContext<'_> {
         fn c_exit(&mut self) {
             self.log.push("c_exit".into());
         }
+    }
+
+    impl T24DActions for T24ActionContext<'_> {
         fn d_entry(&mut self) {
             self.log.push("d_entry".into());
         }
@@ -606,13 +663,19 @@ mod t2_5 {
         }
         }
 
-    impl T25Actions for T25ActionContext<'_> {
+    impl T25BActions for T25ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
+    }
+
+    impl T25CActions for T25ActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
+    }
+
+    impl T25DActions for T25ActionContext<'_> {
         fn d_entry(&mut self) {
             self.log.push("d_entry".into());
         }
@@ -651,13 +714,19 @@ mod t2_7 {
         }
         }
 
-    impl T27Actions for T27ActionContext<'_> {
+    impl T27AActions for T27ActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T27BActions for T27ActionContext<'_> {
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T27CActions for T27ActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
@@ -700,13 +769,16 @@ mod t2_8 {
         }
         }
 
-    impl T28Actions for T28ActionContext<'_> {
+    impl T28AActions for T28ActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a_entry".into());
         }
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T28BActions for T28ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
@@ -762,19 +834,25 @@ mod t2_8b {
         }
         }
 
-    impl T28bActions for T28bActionContext<'_> {
+    impl T28bAActions for T28bActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a_entry".into());
         }
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T28bBActions for T28bActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T28bCActions for T28bActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
@@ -827,19 +905,25 @@ mod t2_8c {
         }
         }
 
-    impl T28cActions for T28cActionContext<'_> {
+    impl T28cAActions for T28cActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a_entry".into());
         }
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T28cBActions for T28cActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T28cCActions for T28cActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
@@ -885,7 +969,7 @@ mod t3_12 {
         }
         }
 
-    impl T312Actions for T312ActionContext<'_> {
+    impl T312RedActions for T312ActionContext<'_> {
         fn honk1(&mut self) {
             self.log.push("honk1".into());
         }
@@ -927,7 +1011,7 @@ mod t3_4 {
         }
         }
 
-    impl T34Actions for T34ActionContext<'_> {
+    impl T34RedActions for T34ActionContext<'_> {
         fn heartbeat(&mut self) {
             self.log.push("beat".into());
         }
@@ -976,6 +1060,9 @@ mod t4_misc {
         fn root_handler(&mut self) {
             self.log.push("root".into());
         }
+    }
+
+    impl T4MCActions for T4MActionContext<'_> {
         fn c_entry(&mut self) { /* nop */
         }
     }
@@ -1022,10 +1109,13 @@ mod t4_14 {
         }
         }
 
-    impl T414Actions for T414ActionContext<'_> {
+    impl T414DActions for T414ActionContext<'_> {
         fn d_entry(&mut self) {
             self.log.push("d_entry".into());
         }
+    }
+
+    impl T414EActions for T414ActionContext<'_> {
         fn e_entry(&mut self) {
             self.log.push("e_entry".into());
         }
@@ -1068,11 +1158,14 @@ mod t4_6 {
         }
         }
 
-    impl T46Actions for T46ActionContext<'_> {
+    impl T46CActions for T46ActionContext<'_> {
+        fn c_entry(&mut self) { /* nop */
+        }
+    }
+
+    impl T46DActions for T46ActionContext<'_> {
         fn d_entry(&mut self) {
             self.log.push("d_entry".into());
-        }
-        fn c_entry(&mut self) { /* nop */
         }
     }
 
@@ -1115,7 +1208,7 @@ mod t5 {
         }
         }
 
-    impl T5XActions for T5XActionContext<'_> {
+    impl T5XAActions for T5XActionContext<'_> {
         fn alpha(&mut self) {
             self.log.push("alpha".into());
         }
@@ -1131,12 +1224,18 @@ mod t5 {
         fn cleanup2(&mut self) {
             self.log.push("cleanup2".into());
         }
+    }
+
+    impl T5XBActions for T5XActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
         fn b_exit(&mut self) {
             self.log.push("b_exit".into());
         }
+    }
+
+    impl T5XZActions for T5XActionContext<'_> {
         fn z_entry(&mut self) {
             self.log.push("z_entry".into());
         }
@@ -1188,22 +1287,31 @@ mod t5_5 {
         }
         }
 
-    impl T55Actions for T55ActionContext<'_> {
+    impl T55ParentActions for T55ActionContext<'_> {
         fn parent_entry(&mut self) {
             self.log.push("parent_entry".into());
         }
         fn parent_exit(&mut self) {
             self.log.push("parent_exit".into());
         }
+    }
+
+    impl T55AActions for T55ActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a_entry".into());
         }
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl T55BActions for T55ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
+    }
+
+    impl T55SomewhereActions for T55ActionContext<'_> {
         fn somewhere_entry(&mut self) {
             self.log.push("somewhere_entry".into());
         }
@@ -1254,7 +1362,7 @@ mod t6_2 {
         }
         }
 
-    impl T62Actions for T62ActionContext<'_> {
+    impl T62AActions for T62ActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a".into());
         }
@@ -1290,7 +1398,7 @@ mod t6_4 {
         }
         }
 
-    impl T64Actions for T64ActionContext<'_> {
+    impl T64AActions for T64ActionContext<'_> {
         fn a_entry(&mut self) {
             self.log.push("a".into());
         }
@@ -1333,15 +1441,21 @@ mod t7_2 {
         }
 
     impl T72Actions for T72ActionContext<'_> {
+        fn do_cleanup(&mut self) {
+            self.log.push("do_cleanup".into());
+        }
+    }
+
+    impl T72AActions for T72ActionContext<'_> {
         fn emit_cleanup(&mut self) {
             self.log.push("a_exit".into());
             self.emit(Ev::Cleanup).unwrap();
         }
+    }
+
+    impl T72BActions for T72ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
-        }
-        fn do_cleanup(&mut self) {
-            self.log.push("do_cleanup".into());
         }
     }
 
@@ -1377,7 +1491,7 @@ mod t7_3 {
         }
         }
 
-    impl T73Actions for T73ActionContext<'_> {
+    impl T73AActions for T73ActionContext<'_> {
         fn flood(&mut self) {
             // Queue capacity is 8 (via with_queue_capacity). Emit 9 times.
             let mut errors = 0;
@@ -1429,19 +1543,28 @@ mod t8_3 {
         }
         }
 
-    impl T83Actions for T83ActionContext<'_> {
+    impl T83ParentActions for T83ActionContext<'_> {
         fn parent_exit(&mut self) {
             self.log.push("parent_exit".into());
         }
+    }
+
+    impl T83ChildAActions for T83ActionContext<'_> {
         fn childa_exit(&mut self) {
             self.log.push("childa_exit".into());
+        }
+    }
+
+    impl T83ChildBActions for T83ActionContext<'_> {
+        fn childb_entry(&mut self) {
+            self.log.push("childb_entry".into());
         }
         fn childb_exit(&mut self) {
             self.log.push("childb_exit".into());
         }
-        fn childb_entry(&mut self) {
-            self.log.push("childb_entry".into());
-        }
+    }
+
+    impl T83DoneActions for T83ActionContext<'_> {
         fn done_entry(&mut self) {
             self.log.push("done_entry".into());
         }
@@ -1540,13 +1663,19 @@ mod t8_4b {
     }
     }
 
-    impl T84bActions for T84bActionContext<'_> {
+    impl T84bLearnMoreActions for T84bActionContext<'_> {
         fn enter_lm(&mut self) {
             self.log.push("LM".into());
         }
+    }
+
+    impl T84bInfoActions for T84bActionContext<'_> {
         fn enter_info(&mut self) {
             self.log.push("INFO".into());
         }
+    }
+
+    impl T84bListeningActions for T84bActionContext<'_> {
         fn enter_listening(&mut self) {
             self.log.push("LISTEN".into());
         }
@@ -1617,10 +1746,13 @@ mod t8_5 {
         }
         }
 
-    impl T85Actions for T85ActionContext<'_> {
+    impl T85AActions for T85ActionContext<'_> {
         fn ping(&mut self) {
             self.log.push("ping".into());
         }
+    }
+
+    impl T85CActions for T85ActionContext<'_> {
         fn c_entry(&mut self) {
             self.log.push("c_entry".into());
         }
@@ -1663,10 +1795,13 @@ mod t10_2 {
         }
         }
 
-    impl TimerOnlyActions for TimerOnlyActionContext<'_> {
+    impl TimerOnlyAActions for TimerOnlyActionContext<'_> {
         fn a_e(&mut self) {
             self.log.push("a".into());
         }
+    }
+
+    impl TimerOnlyBActions for TimerOnlyActionContext<'_> {
         fn b_e(&mut self) {
             self.log.push("b".into());
         }
@@ -1720,18 +1855,33 @@ mod t10_3 {
         fn root_e(&mut self) {
             self.log.push("root".into());
         }
+    }
+
+    impl DeepAActions for DeepActionContext<'_> {
         fn a_e(&mut self) {
             self.log.push("a".into());
         }
+    }
+
+    impl DeepBActions for DeepActionContext<'_> {
         fn b_e(&mut self) {
             self.log.push("b".into());
         }
+    }
+
+    impl DeepCActions for DeepActionContext<'_> {
         fn c_e(&mut self) {
             self.log.push("c".into());
         }
+    }
+
+    impl DeepDActions for DeepActionContext<'_> {
         fn d_e(&mut self) {
             self.log.push("d".into());
         }
+    }
+
+    impl DeepEActions for DeepActionContext<'_> {
         fn e_e(&mut self) {
             self.log.push("e".into());
         }
@@ -1770,7 +1920,7 @@ mod t10_4 {
         }
         }
 
-    impl T104Actions for T104ActionContext<'_> {
+    impl T104AActions for T104ActionContext<'_> {
         fn emit_bar(&mut self) {
             self.emit(Ev::Bar).unwrap();
             self.log.push("bar".into());
@@ -1779,6 +1929,9 @@ mod t10_4 {
             self.emit(Ev::Baz).unwrap();
             self.log.push("baz".into());
         }
+    }
+
+    impl T104BActions for T104ActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b".into());
         }
@@ -1818,13 +1971,16 @@ mod t10_5 {
         }
 
     impl T105Actions for T105ActionContext<'_> {
+        fn do_cleanup(&mut self) {
+            self.log.push("do_cleanup".into());
+        }
+    }
+
+    impl T105AActions for T105ActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
             // emit should be a no-op / ignored after termination begins
             let _ = self.emit(Ev::Cleanup);
-        }
-        fn do_cleanup(&mut self) {
-            self.log.push("do_cleanup".into());
         }
     }
 
@@ -1875,12 +2031,21 @@ mod t10_6 {
         fn root_exit(&mut self) {
             self.log.push("root_exit".into());
         }
+    }
+
+    impl T106Deep1Actions for T106ActionContext<'_> {
         fn d1_exit(&mut self) {
             self.log.push("d1_exit".into());
         }
+    }
+
+    impl T106Deep2Actions for T106ActionContext<'_> {
         fn d2_exit(&mut self) {
             self.log.push("d2_exit".into());
         }
+    }
+
+    impl T106FirstStateActions for T106ActionContext<'_> {
         fn first_entry(&mut self) {
             self.log.push("first_entry".into());
         }
@@ -1918,7 +2083,7 @@ mod t10_7 {
         }
         }
 
-    impl T107Actions for T107ActionContext<'_> {
+    impl T107AActions for T107ActionContext<'_> {
         fn a_e(&mut self) {
             self.log.push("hello".into());
         }
@@ -1954,9 +2119,15 @@ mod t10_1 {
         }
         }
 
-    impl T101Actions for T101ActionContext<'_> {
+    impl T101AActions for T101ActionContext<'_> {
         fn shared_setup(&mut self) {
-            self.log.push("shared".into());
+            self.log.push("A".into());
+        }
+    }
+
+    impl T101BActions for T101ActionContext<'_> {
+        fn shared_setup(&mut self) {
+            self.log.push("B".into());
         }
     }
 
@@ -1966,7 +2137,7 @@ mod t10_1 {
         m.step(Duration::ZERO);
         m.send(Ev::Go).unwrap();
         m.step(Duration::ZERO);
-        assert_eq!(m.context().logs(), ["shared", "shared"]);
+        assert_eq!(m.context().logs(), ["A", "B"]);
     }
 }
 
@@ -1988,7 +2159,7 @@ mod t8_1 {
         }
         }
 
-    impl T81Actions for T81ActionContext<'_> {
+    impl T81GreenActions for T81ActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
@@ -2027,10 +2198,13 @@ mod t8_2 {
         }
         }
 
-    impl T82Actions for T82ActionContext<'_> {
+    impl T82GreenActions for T82ActionContext<'_> {
         fn green_on(&mut self) {
             self.log.push("green_on".into());
         }
+    }
+
+    impl T82YellowActions for T82ActionContext<'_> {
         fn yellow_on(&mut self) {
             self.log.push("yellow_on".into());
         }
@@ -2072,11 +2246,14 @@ mod b1_emit_or_panic {
         }
         }
 
-    impl B1MActions for B1MActionContext<'_> {
+    impl B1MAActions for B1MActionContext<'_> {
         fn emit_bar(&mut self) {
             self.log.push("emit_bar".into());
             self.emit_or_panic(Ev::Bar);
         }
+    }
+
+    impl B1MBActions for B1MActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }
@@ -2111,7 +2288,7 @@ mod b2_has_pending {
         }
         }
 
-    impl B2MActions for B2MActionContext<'_> {
+    impl B2MAActions for B2MActionContext<'_> {
         fn noop(&mut self) {
             self.log.push("noop".into());
         }
@@ -2142,10 +2319,13 @@ mod b5_no_events {
         }
         }
 
-    impl B5MActions for B5MActionContext<'_> {
+    impl B5MAActions for B5MActionContext<'_> {
         fn a_exit(&mut self) {
             self.log.push("a_exit".into());
         }
+    }
+
+    impl B5MBActions for B5MActionContext<'_> {
         fn b_entry(&mut self) {
             self.log.push("b_entry".into());
         }

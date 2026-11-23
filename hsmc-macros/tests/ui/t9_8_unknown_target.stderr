@@ -9,5 +9,5 @@ error[E0046]: not all trait items implemented, missing: `NonExistent`
 19 | | }
    | |_- `NonExistent` from trait
 20 |
-21 |   impl MActions for MActionContext<'_> {}
-   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `NonExistent` in implementation
+21 |   impl MAActions for MActionContext<'_> {}
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `NonExistent` in implementation

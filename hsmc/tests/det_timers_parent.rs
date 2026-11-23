@@ -42,11 +42,17 @@ statechart! {
     }
 }
 
-impl PtActions for PtActionContext<'_> {
+impl PtParentActions for PtActionContext<'_> {
     async fn p_in(&mut self) {}
     async fn p_out(&mut self) {}
+}
+
+impl PtChildAActions for PtActionContext<'_> {
     async fn ca_in(&mut self) {}
     async fn ca_out(&mut self) {}
+}
+
+impl PtDoneActions for PtActionContext<'_> {
     async fn d_in(&mut self) {}
 }
 

@@ -67,6 +67,19 @@
 //! calling crate does not need matching feature declarations or
 //! `unexpected_cfgs` lint allowances.
 //!
+//! ## State action traits
+//!
+//! Each named state gets a `<Machine><State>Actions` trait. Implement it
+//! on `<Machine>ActionContext<'_>` to provide that state's entry, exit and
+//! event/timer action methods. For example, `Radio` states `Idle` and
+//! `Listening` use `RadioIdleActions` and `RadioListeningActions`.
+//! Actions declared at the chart root use `<Machine>Actions`.
+//!
+//! Action names and signatures are scoped to their declaring state, so
+//! two states can implement the same name independently. Parent handlers
+//! use the parent's trait even while a child is active. States without
+//! actions need no empty trait implementation.
+//!
 //! ## Out of scope (spec §11)
 //!
 //! The following are explicitly NOT part of v0.1 and should not be added

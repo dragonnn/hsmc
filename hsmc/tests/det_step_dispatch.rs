@@ -39,9 +39,12 @@ statechart! {
     }
 }
 
-impl EqActions for EqActionContext<'_> {
+impl EqAActions for EqActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl EqBActions for EqActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
 }

@@ -17,7 +17,7 @@ pub struct Ir {
     pub events_omitted: bool,
     pub terminate_event: Option<Ident>,
     pub states: Vec<StateIr>,
-    /// Action ident → signature info (trait-method index = position in vec).
+    /// State/action ident pair → signature info (action id = position in vec).
     pub actions: Vec<ActionIr>,
     /// Event variants referenced anywhere, with the variant kind locked in
     /// on first use (unit / tuple / struct) for correct pattern matching in
@@ -36,6 +36,8 @@ pub struct Ir {
 }
 
 pub struct ActionIr {
+    /// State whose action trait owns this method.
+    pub state_id: u16,
     pub name: Ident,
     /// Typed parameters bound from an event payload. Empty for
     /// entry/exit/timer actions or actions triggered by unit-variant events.
@@ -214,8 +216,12 @@ fn alloc_state(ir: &mut Ir, name: Ident, parent: Option<u16>, depth: u8, span: S
     id
 }
 
-fn intern_action_unit(ir: &mut Ir, i: &Ident) -> syn::Result<u16> {
-    if let Some(p) = ir.actions.iter().position(|x| x.name == *i) {
+fn intern_action_unit(ir: &mut Ir, state_id: u16, i: &Ident) -> syn::Result<u16> {
+    if let Some(p) = ir
+        .actions
+        .iter()
+        .position(|x| x.state_id == state_id && x.name == *i)
+    {
         if !ir.actions[p].params.is_empty() {
             return Err(syn::Error::new(
                 i.span(),
@@ -229,6 +235,7 @@ fn intern_action_unit(ir: &mut Ir, i: &Ident) -> syn::Result<u16> {
         return Ok(p as u16);
     }
     ir.actions.push(ActionIr {
+        state_id,
         name: i.clone(),
         params: Vec::new(),
         bound_variants: Vec::new(),
@@ -238,12 +245,17 @@ fn intern_action_unit(ir: &mut Ir, i: &Ident) -> syn::Result<u16> {
 
 fn intern_action_with_params(
     ir: &mut Ir,
+    state_id: u16,
     i: &Ident,
     params: &[PayloadField],
     variant: &Ident,
     variant_kind: PayloadKind,
 ) -> syn::Result<u16> {
-    if let Some(p) = ir.actions.iter().position(|x| x.name == *i) {
+    if let Some(p) = ir
+        .actions
+        .iter()
+        .position(|x| x.state_id == state_id && x.name == *i)
+    {
         if ir.actions[p].params.is_empty() {
             return Err(syn::Error::new(
                 i.span(),
@@ -278,6 +290,7 @@ fn intern_action_with_params(
         return Ok(p as u16);
     }
     ir.actions.push(ActionIr {
+        state_id,
         name: i.clone(),
         params: params.to_vec(),
         bound_variants: vec![BoundVariant {
@@ -405,11 +418,11 @@ fn lower_body(
 ) -> syn::Result<()> {
     let mut entries: Vec<u16> = Vec::new();
     for i in &body.entries {
-        entries.push(intern_action_unit(ir, i)?);
+        entries.push(intern_action_unit(ir, state_id, i)?);
     }
     let mut exits: Vec<u16> = Vec::new();
     for i in &body.exits {
-        exits.push(intern_action_unit(ir, i)?);
+        exits.push(intern_action_unit(ir, state_id, i)?);
     }
     ir.states[state_id as usize].entries = entries;
     ir.states[state_id as usize].exits = exits;
@@ -436,7 +449,9 @@ fn lower_body(
             }
         };
         let kind = match &h.kind {
-            HandlerKind::Target(target) => classify_target(ir, target, &trig, state_names)?,
+            HandlerKind::Target(target) => {
+                classify_target(ir, state_id, target, &trig, state_names)?
+            }
         };
         new_handlers.push(HandlerIr {
             trigger: trig,
@@ -477,6 +492,7 @@ fn lower_body(
 /// rules that only apply to one form or the other.
 fn classify_target(
     ir: &mut Ir,
+    state_id: u16,
     target: &Ident,
     trig: &TriggerIr,
     state_names: &std::collections::HashSet<String>,
@@ -507,10 +523,15 @@ fn classify_target(
     } else {
         // Action handler.
         let aid = match trig {
-            TriggerIr::Event(_, variant, Some(payload)) => {
-                intern_action_with_params(ir, target, &payload.fields, variant, payload.kind)?
-            }
-            _ => intern_action_unit(ir, target)?,
+            TriggerIr::Event(_, variant, Some(payload)) => intern_action_with_params(
+                ir,
+                state_id,
+                target,
+                &payload.fields,
+                variant,
+                payload.kind,
+            )?,
+            _ => intern_action_unit(ir, state_id, target)?,
         };
         Ok(HandlerKindIr::Action(aid, target.clone()))
     }

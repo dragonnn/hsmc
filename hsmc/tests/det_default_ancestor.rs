@@ -41,8 +41,11 @@ statechart! {
     }
 }
 
-impl AncestorDefaultActions for AncestorDefaultActionContext<'_> {
+impl AncestorDefaultOuterActions for AncestorDefaultActionContext<'_> {
     async fn outer_in(&mut self) {}
+}
+
+impl AncestorDefaultInnerActions for AncestorDefaultActionContext<'_> {
     async fn inner_in(&mut self) {}
     async fn inner_out(&mut self) {}
 }

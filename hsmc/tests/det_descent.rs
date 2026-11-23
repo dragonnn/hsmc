@@ -58,15 +58,27 @@ statechart! {
     }
 }
 
-impl DescActions for DescActionContext<'_> {
+impl DescIdleActions for DescActionContext<'_> {
     async fn idle_in(&mut self) {}
     async fn idle_out(&mut self) {}
+}
+
+impl DescTowerActions for DescActionContext<'_> {
     async fn tower_in(&mut self) {}
     async fn tower_out(&mut self) {}
+}
+
+impl DescL1Actions for DescActionContext<'_> {
     async fn l1_in(&mut self) {}
     async fn l1_out(&mut self) {}
+}
+
+impl DescL2Actions for DescActionContext<'_> {
     async fn l2_in(&mut self) {}
     async fn l2_out(&mut self) {}
+}
+
+impl DescL3Actions for DescActionContext<'_> {
     async fn l3_in(&mut self) {}
     async fn l3_out(&mut self) {}
 }

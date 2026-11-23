@@ -74,17 +74,32 @@ statechart! {
     }
 }
 
-impl LatActions for LatActionContext<'_> {
+impl LatParentActions for LatActionContext<'_> {
     async fn p_in(&mut self) {}
     async fn p_out(&mut self) {}
+}
+
+impl LatAActions for LatActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl LatBActions for LatActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
+}
+
+impl LatCActions for LatActionContext<'_> {
     async fn c_in(&mut self) {}
     async fn c_out(&mut self) {}
+}
+
+impl LatDActions for LatActionContext<'_> {
     async fn d_in(&mut self) {}
     async fn d_out(&mut self) {}
+}
+
+impl LatEActions for LatActionContext<'_> {
     async fn e_in(&mut self) {}
     async fn e_out(&mut self) {}
 }

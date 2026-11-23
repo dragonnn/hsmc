@@ -65,7 +65,7 @@ mod h2 {
         }
     }
 
-    impl H2Actions for H2ActionContext<'_> {
+    impl H2BActions for H2ActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -115,7 +115,7 @@ mod h4 {
         }
     }
 
-    impl H4Actions for H4ActionContext<'_> {
+    impl H4R3Actions for H4ActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -171,7 +171,7 @@ mod h8 {
         }
     }
 
-    impl H8Actions for H8ActionContext<'_> {
+    impl H8R7Actions for H8ActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -207,10 +207,25 @@ mod chain {
         }
     }
 
-    impl ChainActions for ChainActionContext<'_> {
+    impl ChainS1Actions for ChainActionContext<'_> {
         fn emit_next(&mut self) {
             let _ = self.emit(Ev::Next);
         }
+    }
+
+    impl ChainS2Actions for ChainActionContext<'_> {
+        fn emit_next(&mut self) {
+            let _ = self.emit(Ev::Next);
+        }
+    }
+
+    impl ChainS3Actions for ChainActionContext<'_> {
+        fn emit_next(&mut self) {
+            let _ = self.emit(Ev::Next);
+        }
+    }
+
+    impl ChainS4Actions for ChainActionContext<'_> {
         fn settle(&mut self) {}
     }
 }
@@ -269,7 +284,7 @@ mod bubble {
         }
     }
 
-    impl BubbleActions for BubbleActionContext<'_> {
+    impl BubbleSiblingActions for BubbleActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -301,7 +316,7 @@ mod timer_fire {
         }
     }
 
-    impl TimerFireActions for TimerFireActionContext<'_> {
+    impl TimerFireFiredActions for TimerFireActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -342,7 +357,7 @@ mod term {
         }
     }
 
-    impl TermActions for TermActionContext<'_> {
+    impl TermL3Actions for TermActionContext<'_> {
         fn noop(&mut self) {}
     }
 }
@@ -403,7 +418,11 @@ mod bubble_cross {
         }
     }
 
-    impl BubbleCrossActions for BubbleCrossActionContext<'_> {
+    impl BubbleCrossL5Actions for BubbleCrossActionContext<'_> {
+        fn noop(&mut self) {}
+    }
+
+    impl BubbleCrossR5Actions for BubbleCrossActionContext<'_> {
         fn noop(&mut self) {}
     }
 }

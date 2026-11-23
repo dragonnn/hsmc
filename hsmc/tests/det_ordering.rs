@@ -57,16 +57,22 @@ impl OrdActions for OrdActionContext<'_> {
     async fn r3(&mut self) {}
     async fn r_x1(&mut self) {}
     async fn r_x2(&mut self) {}
+}
+
+impl OrdAActions for OrdActionContext<'_> {
     async fn a1(&mut self) {}
     async fn a2(&mut self) {}
     async fn a_x1(&mut self) {}
     async fn a_x2(&mut self) {}
     async fn a_x3(&mut self) {}
-    async fn b1(&mut self) {}
-    async fn b_x1(&mut self) {}
     async fn act1(&mut self) {}
     async fn act2(&mut self) {}
     async fn act3(&mut self) {}
+}
+
+impl OrdBActions for OrdActionContext<'_> {
+    async fn b1(&mut self) {}
+    async fn b_x1(&mut self) {}
 }
 
 const SR: u16 = 0;

@@ -28,10 +28,13 @@ Blinker {
 }
 }
 
-impl BlinkerActions for BlinkerActionContext<'_> {
+impl BlinkerOnActions for BlinkerActionContext<'_> {
     async fn bump_on(&mut self) {
         self.on_count = self.on_count.wrapping_add(1);
     }
+}
+
+impl BlinkerOffActions for BlinkerActionContext<'_> {
     async fn bump_off(&mut self) {
         self.off_count = self.off_count.wrapping_add(1);
     }

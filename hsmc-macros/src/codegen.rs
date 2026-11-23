@@ -779,7 +779,24 @@ pub fn generate(ir: &Ir) -> TokenStream {
 
     let machine_name = &ir.name;
     let state_enum_name = format_ident!("{}State", machine_name);
-    let actions_trait_name = format_ident!("{}Actions", machine_name);
+    let action_trait_names: Vec<_> = ir
+        .states
+        .iter()
+        .map(|state| {
+            if state.parent.is_none() {
+                format_ident!("{}Actions", machine_name)
+            } else {
+                format_ident!("{}{}Actions", machine_name, state.name)
+            }
+        })
+        .collect();
+    // Empty state traits are emitted for completeness but need no impl.
+    let required_action_traits: Vec<_> = ir
+        .states
+        .iter()
+        .filter(|state| ir.actions.iter().any(|action| action.state_id == state.id))
+        .map(|state| &action_trait_names[state.id as usize])
+        .collect();
     let action_ctx_name = format_ident!("{}ActionContext", machine_name);
     let ctx_alias_name = format_ident!("{}Ctx", machine_name);
     let sender_name = format_ident!("{}Sender", machine_name);
@@ -1419,35 +1436,42 @@ pub fn generate(ir: &Ir) -> TokenStream {
             quote! { #id => #state_enum_name::#nm, }
         })
         .collect::<Vec<_>>();
-    // Trait methods, possibly with typed params for payload-bearing actions.
-    let action_methods_sync = ir
-        .actions
+    // Each state owns its action methods, including when another state
+    // uses the same name. Root-level actions retain <Machine>Actions.
+    let action_traits: Vec<_> = ir
+        .states
         .iter()
-        .map(|a| {
-            let name = &a.name;
-            let params = a.params.iter().map(|f| {
-                let n = &f.name;
-                let t = &f.ty;
-                quote! { #n: #t }
+        .map(|state| {
+            let trait_name = &action_trait_names[state.id as usize];
+            let methods = ir.actions.iter().filter(|a| a.state_id == state.id).map(|a| {
+                let name = &a.name;
+                let params = a.params.iter().map(|field| {
+                    let name = &field.name;
+                    let ty = &field.ty;
+                    quote! { #name: #ty }
+                });
+                if async_enabled {
+                    quote! {
+                        fn #name(&mut self, #(#params),*) -> impl ::core::future::Future<Output = ()>;
+                    }
+                } else {
+                    quote! { fn #name(&mut self, #(#params),*); }
+                }
             });
-            quote! { fn #name(&mut self, #(#params),*); }
-        })
-        .collect::<Vec<_>>();
-    let action_methods_async = ir
-        .actions
-        .iter()
-        .map(|a| {
-            let name = &a.name;
-            let params = a.params.iter().map(|f| {
-                let n = &f.name;
-                let t = &f.ty;
-                quote! { #n: #t }
-            });
+            let state_name = if state.parent.is_none() { machine_name } else { &state.name };
+            let doc = format!(
+                "Action methods for state `{}` of the `{}` statechart. Implement on `{}`. Methods are asynchronous when the `tokio` or `embassy` feature is enabled.",
+                state_name, machine_name, action_ctx_name
+            );
             quote! {
-                fn #name(&mut self, #(#params),*) -> impl ::core::future::Future<Output = ()>;
+                #[doc = #doc]
+                #[allow(non_camel_case_types, non_snake_case)]
+                pub trait #trait_name {
+                    #(#methods)*
+                }
             }
         })
-        .collect::<Vec<_>>();
+        .collect();
 
     // Dispatch arms: for unit-signature actions call straight through; for
     // payload-bearing actions, re-match on the passed event and destructure.
@@ -1460,6 +1484,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         .enumerate()
         .map(|(i, a)| {
             let i = i as u16;
+            let actions_trait_name = &action_trait_names[a.state_id as usize];
             let name = &a.name;
             if a.params.is_empty() {
                 quote! { #i => <Ctx as #actions_trait_name>::#name(ctx), }
@@ -1501,6 +1526,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         .enumerate()
         .map(|(i, a)| {
             let i = i as u16;
+            let actions_trait_name = &action_trait_names[a.state_id as usize];
             let name = &a.name;
             if a.params.is_empty() {
                 quote! { #i => <Ctx as #actions_trait_name>::#name(ctx).await, }
@@ -1660,10 +1686,6 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // Doc strings as literals for quoting.
     let state_enum_doc = format!(
         "Enum of every state declared in the `{}` statechart. Each variant names a user-declared state; the root is implicit and never surfaced.",
-        machine_name
-    );
-    let actions_trait_doc = format!(
-        "Trait implemented by the user to provide action function bodies for the `{}` statechart. One method per unique action name.",
         machine_name
     );
     let action_ctx_doc = format!(
@@ -2339,25 +2361,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             #(#state_variants),*
         }
 
-        #[doc = #actions_trait_doc]
-        #sync_cfg
-        #[allow(non_snake_case)]
-        pub trait #actions_trait_name {
-            #(#action_methods_sync)*
-        }
-
-        #[doc = #actions_trait_doc]
-        ///
-        /// Under the `tokio` or `embassy` feature, action methods are
-        /// `async fn` so that entry/exit/event-action bodies can `.await`
-        /// peripheral calls (I2C flush, radio ops, etc.). Returned futures
-        /// must be `Send` for compatibility with multi-threaded / Send
-        /// executors.
-        #async_cfg
-        #[allow(non_snake_case)]
-        pub trait #actions_trait_name {
-            #(#action_methods_async)*
-        }
+        #(#action_traits)*
 
         #[doc = #action_ctx_doc]
         pub struct #action_ctx_name<'a> {
@@ -3006,7 +3010,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                     __terminated: terminated,
                     __journal: journal,
                 };
-                fn __dispatch<Ctx: #actions_trait_name>(
+                fn __dispatch<Ctx: ::core::marker::Sized #(+ #required_action_traits)*>(
                     ctx: &mut Ctx,
                     aid: u16,
                     __event: Option<&#ev_ty>,
@@ -3037,7 +3041,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                     __terminated: terminated,
                     __journal: journal,
                 };
-                async fn __dispatch<Ctx: #actions_trait_name>(
+                async fn __dispatch<Ctx: ::core::marker::Sized #(+ #required_action_traits)*>(
                     ctx: &mut Ctx,
                     aid: u16,
                     __event: Option<&#ev_ty>,

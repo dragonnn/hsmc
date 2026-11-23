@@ -61,14 +61,20 @@ statechart! {
 }
 
 impl BubActions for BubActionContext<'_> {
+    async fn root_handler(&mut self) {}
+}
+
+impl BubMidActions for BubActionContext<'_> {
     async fn m_in(&mut self) {}
     async fn m_out(&mut self) {}
+    async fn mid_handler(&mut self) {}
+    async fn mid_shadowed(&mut self) {}
+}
+
+impl BubLeafActions for BubActionContext<'_> {
     async fn l_in(&mut self) {}
     async fn l_out(&mut self) {}
-    async fn root_handler(&mut self) {}
-    async fn mid_handler(&mut self) {}
     async fn leaf_handler(&mut self) {}
-    async fn mid_shadowed(&mut self) {}
     async fn leaf_shadowed(&mut self) {}
     async fn multi1(&mut self) {}
     async fn multi2(&mut self) {}

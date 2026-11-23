@@ -36,9 +36,12 @@ statechart! {
     }
 }
 
-impl TimerProbeActions for TimerProbeActionContext<'_> {
+impl TimerProbeCountingActions for TimerProbeActionContext<'_> {
     async fn noop(&mut self) {}
     async fn noop2(&mut self) {}
+}
+
+impl TimerProbeDoneActions for TimerProbeActionContext<'_> {
     async fn noop3(&mut self) {}
 }
 

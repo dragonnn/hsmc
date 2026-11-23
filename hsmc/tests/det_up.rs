@@ -68,12 +68,24 @@ statechart! {
 impl UpActions for UpActionContext<'_> {
     async fn r_in(&mut self) {}
     async fn r_out(&mut self) {}
+}
+
+impl UpAActions for UpActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl UpBActions for UpActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
+}
+
+impl UpCActions for UpActionContext<'_> {
     async fn c_in(&mut self) {}
     async fn c_out(&mut self) {}
+}
+
+impl UpDActions for UpActionContext<'_> {
     async fn d_in(&mut self) {}
     async fn d_out(&mut self) {}
 }

@@ -53,11 +53,17 @@ statechart! {
     }
 }
 
-impl MicrowaveActions for MicrowaveActionContext<'_> {
+impl MicrowaveStandbyActions for MicrowaveActionContext<'_> {
     async fn standby_in(&mut self) {}
     async fn standby_out(&mut self) {}
+}
+
+impl MicrowaveLowPowerActions for MicrowaveActionContext<'_> {
     async fn low_in(&mut self) {}
     async fn low_out(&mut self) {}
+}
+
+impl MicrowaveOnActions for MicrowaveActionContext<'_> {
     async fn on_in(&mut self) {}
     async fn on_out(&mut self) {}
 }

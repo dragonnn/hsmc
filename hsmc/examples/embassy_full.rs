@@ -53,7 +53,7 @@ statechart! {
     }
 }
 
-impl RadioActions for RadioActionContext<'_> {
+impl RadioListeningActions for RadioActionContext<'_> {
     async fn on_enter_listening(&mut self) {
         // In a real firmware this might `radio.start_rx().await` or
         // `display.flush().await` — actions are `async fn` under the

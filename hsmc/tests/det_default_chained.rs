@@ -38,10 +38,16 @@ statechart! {
     }
 }
 
-impl ChainedDefaultActions for ChainedDefaultActionContext<'_> {
+impl ChainedDefaultHubActions for ChainedDefaultActionContext<'_> {
     async fn hub_in(&mut self) {}
+}
+
+impl ChainedDefaultSpoke1Actions for ChainedDefaultActionContext<'_> {
     async fn s1_in(&mut self) {}
     async fn s1_out(&mut self) {}
+}
+
+impl ChainedDefaultSpoke2Actions for ChainedDefaultActionContext<'_> {
     async fn s2_in(&mut self) {}
 }
 

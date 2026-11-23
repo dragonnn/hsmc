@@ -35,8 +35,11 @@ statechart! {
     }
 }
 
-impl BlinkerActions for BlinkerActionContext<'_> {
+impl BlinkerOffActions for BlinkerActionContext<'_> {
     async fn light_off(&mut self) { self.on = false; }
+}
+
+impl BlinkerOnActions for BlinkerActionContext<'_> {
     async fn light_on(&mut self)  { self.on = true; self.blinks += 1; }
 }
 ```
@@ -425,12 +428,19 @@ For `statechart! Foo { ... }` the macro emits:
 | Item                       | What it is                                                            |
 | -------------------------- | --------------------------------------------------------------------- |
 | `FooState`                 | Enum of every user-declared state.                                    |
-| `FooActions`               | Trait with one async fn per unique action name. User implements.      |
+| `Foo<State>Actions`        | Trait with the entry, exit and handler methods declared in that state. |
+| `FooActions`               | Trait for actions declared at the chart root.                         |
 | `FooActionContext<'a>`     | Wrapper passed to actions. `Deref`s to the root context. `emit()`.    |
 | `FooCtx<'a>`               | Type alias for `FooActionContext<'a>`.                                |
 | `Foo<const QN: usize = 8>` | The machine itself.                                                   |
 | `FooSender`                | Cloneable handle for cross-task / ISR event injection.                |
 | `Foo::<8>::STATE_CHART`    | `&'static str` ASCII tree of the hierarchy (useful for `defmt`/docs). |
+
+Implement each state's trait on `FooActionContext<'_>`. For example, state
+`Idle` uses `FooIdleActions`, including when it is nested in another state.
+The same action name in different states can have different bodies and
+signatures. Parent handlers use the parent's trait even while a child is
+active. States without actions do not require an empty implementation.
 
 ### Machine methods
 

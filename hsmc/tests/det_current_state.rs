@@ -43,11 +43,17 @@ statechart! {
     }
 }
 
-impl CurActions for CurActionContext<'_> {
+impl CurParentActions for CurActionContext<'_> {
     async fn p_in(&mut self) {}
     async fn p_out(&mut self) {}
+}
+
+impl CurAActions for CurActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl CurBActions for CurActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
 }

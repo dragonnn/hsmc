@@ -56,7 +56,7 @@ async fn slow(s: &mut u32) -> Ev {
     Ev::Slow
 }
 
-impl ConcurrentActions for ConcurrentActionContext<'_> {
+impl ConcurrentRunningActions for ConcurrentActionContext<'_> {
     async fn on_fast(&mut self) {
         self.seen_fast = self.seen_fast.wrapping_add(1);
     }

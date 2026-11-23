@@ -37,9 +37,12 @@ statechart! {
     }
 }
 
-impl SiblingDefaultActions for SiblingDefaultActionContext<'_> {
+impl SiblingDefaultFoyerActions for SiblingDefaultActionContext<'_> {
     async fn foyer_in(&mut self) {}
     async fn foyer_out(&mut self) {}
+}
+
+impl SiblingDefaultLivingRoomActions for SiblingDefaultActionContext<'_> {
     async fn living_in(&mut self) {}
     async fn living_out(&mut self) {}
 }

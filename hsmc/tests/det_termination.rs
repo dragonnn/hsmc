@@ -49,11 +49,17 @@ statechart! {
 impl TermActions for TermActionContext<'_> {
     async fn r_in(&mut self) {}
     async fn r_out(&mut self) {}
+}
+
+impl TermMidActions for TermActionContext<'_> {
     async fn m_in(&mut self) {}
     async fn m_out(&mut self) {}
+    async fn log_other(&mut self) {}
+}
+
+impl TermLeafActions for TermActionContext<'_> {
     async fn l_in(&mut self) {}
     async fn l_out(&mut self) {}
-    async fn log_other(&mut self) {}
 }
 
 const SR: u16 = 0;

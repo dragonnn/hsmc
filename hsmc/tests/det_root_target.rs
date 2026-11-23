@@ -54,8 +54,14 @@ statechart! {
 impl SubActions for SubActionContext<'_> {
     async fn r_in(&mut self) {}
     async fn r_out(&mut self) {}
+}
+
+impl SubAActions for SubActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl SubBActions for SubActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
 }

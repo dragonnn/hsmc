@@ -140,16 +140,15 @@ async fn await_tx_done(radio: &mut SimRadio) -> Ev {
     Ev::TxDone
 }
 
-impl RadioActions for RadioActionContext<'_> {
+impl RadioIdleActions for RadioActionContext<'_> {
     async fn announce_idle(&mut self) {
         println!("[radio] → Idle");
     }
+}
+
+impl RadioReceivingActions for RadioActionContext<'_> {
     async fn announce_rx(&mut self) {
         println!("[radio] → Receiving");
-    }
-    async fn begin_tx_hw(&mut self) {
-        println!("[radio] → Transmitting");
-        self.radio.begin_tx();
     }
     async fn record_packet(&mut self, rssi: i16, snr: i16, len: usize) {
         self.stats.rx_count = self.stats.rx_count.wrapping_add(1);
@@ -159,6 +158,13 @@ impl RadioActions for RadioActionContext<'_> {
         self.last_payload = snapshot;
         let count = self.stats.rx_count;
         println!("[radio] rx#{} rssi={} snr={} len={}", count, rssi, snr, len);
+    }
+}
+
+impl RadioTransmittingActions for RadioActionContext<'_> {
+    async fn begin_tx_hw(&mut self) {
+        println!("[radio] → Transmitting");
+        self.radio.begin_tx();
     }
     async fn tx_completed(&mut self) {
         self.stats.tx_count = self.stats.tx_count.wrapping_add(1);

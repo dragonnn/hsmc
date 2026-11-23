@@ -48,9 +48,12 @@ statechart! {
     }
 }
 
-impl Self_Actions for Self_ActionContext<'_> {
+impl Self_MidActions for Self_ActionContext<'_> {
     async fn m_in(&mut self) {}
     async fn m_out(&mut self) {}
+}
+
+impl Self_LeafActions for Self_ActionContext<'_> {
     async fn l_in(&mut self) {}
     async fn l_out(&mut self) {}
 }

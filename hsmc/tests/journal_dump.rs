@@ -57,13 +57,22 @@ impl DumpActions for DumpActionContext<'_> {
         self.n += 1;
     }
     async fn root_out(&mut self) {}
+}
+
+impl DumpIdleActions for DumpActionContext<'_> {
     async fn idle_in(&mut self) {}
     async fn idle_out(&mut self) {}
+    async fn beep_at_idle(&mut self) {}
+}
+
+impl DumpActiveActions for DumpActionContext<'_> {
     async fn active_in(&mut self) {}
     async fn active_out(&mut self) {}
+}
+
+impl DumpSubActions for DumpActionContext<'_> {
     async fn sub_in(&mut self) {}
     async fn sub_out(&mut self) {}
-    async fn beep_at_idle(&mut self) {}
     async fn beep_at_sub(&mut self) {}
 }
 

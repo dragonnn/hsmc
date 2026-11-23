@@ -49,11 +49,9 @@ statechart! {
     }
 }
 
-impl EmActions for EmActionContext<'_> {
+impl EmAActions for EmActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
-    async fn b_in(&mut self) {}
-    async fn b_out(&mut self) {}
     async fn emit_followup(&mut self) {
         let _ = self.emit(Ev::Followup);
     }
@@ -63,6 +61,11 @@ impl EmActions for EmActionContext<'_> {
             let _ = self.emit(Ev::Followup);
         }
     }
+}
+
+impl EmBActions for EmActionContext<'_> {
+    async fn b_in(&mut self) {}
+    async fn b_out(&mut self) {}
 }
 
 const E_TRIGGER: u16 = 0;

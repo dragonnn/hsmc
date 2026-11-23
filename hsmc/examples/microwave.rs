@@ -173,7 +173,7 @@ Oven {
     }
 
     state Done {
-        // `beep` is shared with `Idle` — a single trait method serves both.
+        // `beep` also appears in `Idle`; each state implements its own method.
         entry: beep, show_done;
         exit: clear_display;
 
@@ -193,9 +193,9 @@ Oven {
 
 // ---------- Action implementations ----------
 //
-// The macro generates `OvenActions` (one method per unique action name used
-// anywhere above) and `OvenActionContext<'_>` (a wrapper that derefs to
-// `OvenContext` and exposes `emit`). The user simply implements the trait.
+// The macro generates `OvenActions` for root actions and a separate trait
+// for each named state, such as `OvenIdleActions`. All are implemented on
+// `OvenActionContext<'_>`, which derefs to `OvenContext` and exposes `emit`.
 
 impl OvenActions for OvenActionContext<'_> {
     // Root
@@ -217,7 +217,9 @@ impl OvenActions for OvenActionContext<'_> {
         }
         self.log.push("SHUTDOWN: power cut".into());
     }
+}
 
+impl OvenIdleActions for OvenActionContext<'_> {
     // Idle
     async fn show_ready(&mut self) {
         self.hw.lock().unwrap().display = "READY".into();
@@ -242,7 +244,9 @@ impl OvenActions for OvenActionContext<'_> {
         // Shared between Idle (DoorOpened) and Done (entry).
         self.log.push("*BEEP*".into());
     }
+}
 
+impl OvenRunningActions for OvenActionContext<'_> {
     // Running
     async fn start_magnetron(&mut self) {
         self.hw.lock().unwrap().magnetron_on = true;
@@ -255,11 +259,16 @@ impl OvenActions for OvenActionContext<'_> {
     async fn heartbeat(&mut self) {
         self.log.push("tick".into());
     }
+}
 
+impl OvenCookingActions for OvenActionContext<'_> {
     // Cooking / Heating
     async fn show_cooking(&mut self) {
         self.hw.lock().unwrap().display = "COOKING".into();
     }
+}
+
+impl OvenHeatingActions for OvenActionContext<'_> {
     async fn heater_on(&mut self) {
         self.hw.lock().unwrap().heater_on = true;
         self.log.push("HEAT: on".into());
@@ -268,7 +277,9 @@ impl OvenActions for OvenActionContext<'_> {
         self.hw.lock().unwrap().heater_on = false;
         self.log.push("HEAT: off".into());
     }
+}
 
+impl OvenPausedActions for OvenActionContext<'_> {
     // Paused
     async fn show_paused(&mut self) {
         self.hw.lock().unwrap().display = "PAUSED".into();
@@ -282,10 +293,20 @@ impl OvenActions for OvenActionContext<'_> {
     async fn log_resume(&mut self) {
         self.log.push("PAUSE: resuming".into());
     }
+}
+
+impl OvenDoneActions for OvenActionContext<'_> {
+    async fn beep(&mut self) {
+        // Shared between Idle (DoorOpened) and Done (entry).
+        self.log.push("*BEEP*".into());
+    }
 
     // Done
     async fn show_done(&mut self) {
         self.hw.lock().unwrap().display = "DONE".into();
+    }
+    async fn clear_display(&mut self) {
+        self.hw.lock().unwrap().display.clear();
     }
     async fn schedule_auto_reset(&mut self) {
         // emit() is provided by the generated ActionContext. It returns a

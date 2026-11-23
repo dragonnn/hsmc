@@ -42,8 +42,11 @@ Preview {
 }
 }
 
-impl PreviewActions for PreviewActionContext<'_> {
+impl PreviewIdleActions for PreviewActionContext<'_> {
     fn on_idle(&mut self) {}
+}
+
+impl PreviewRunningActions for PreviewActionContext<'_> {
     fn on_run(&mut self) {}
     fn leave_run(&mut self) {}
 }

@@ -41,16 +41,22 @@ statechart! {
 }
 
 impl EtActions for EtActionContext<'_> {
+    async fn log_cleanup(&mut self) {}
+    async fn log_wakeup(&mut self) {}
+}
+
+impl EtAActions for EtActionContext<'_> {
     async fn a_in(&mut self) {}
-    async fn b_out(&mut self) {}
     async fn emit_cleanup(&mut self) {
         let _ = self.emit(Ev::Cleanup);
     }
+}
+
+impl EtBActions for EtActionContext<'_> {
     async fn emit_wakeup(&mut self) {
         let _ = self.emit(Ev::Wakeup);
     }
-    async fn log_cleanup(&mut self) {}
-    async fn log_wakeup(&mut self) {}
+    async fn b_out(&mut self) {}
 }
 
 #[tokio::test(flavor = "current_thread")]

@@ -19,7 +19,11 @@ M {
 }
 }
 
-impl MActions for MActionContext<'_> {
+impl MGreenActions for MActionContext<'_> {
+    fn e(&mut self) {}
+}
+
+impl MYellowActions for MActionContext<'_> {
     fn e(&mut self) {}
 }
 

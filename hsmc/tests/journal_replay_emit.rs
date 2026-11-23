@@ -33,10 +33,13 @@ statechart! {
     }
 }
 
-impl EmitProbeActions for EmitProbeActionContext<'_> {
+impl EmitProbeAActions for EmitProbeActionContext<'_> {
     async fn emit_followup(&mut self) {
         self.emit(Ev::Followup).unwrap();
     }
+}
+
+impl EmitProbeBActions for EmitProbeActionContext<'_> {
     async fn noop(&mut self) {}
 }
 

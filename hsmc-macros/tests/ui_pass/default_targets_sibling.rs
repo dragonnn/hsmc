@@ -28,8 +28,11 @@ M {
 }
 }
 
-impl MActions for MActionContext<'_> {
+impl MFoyerActions for MActionContext<'_> {
     fn foyer_in(&mut self) {}
+}
+
+impl MLivingRoomActions for MActionContext<'_> {
     fn living_in(&mut self) {}
 }
 

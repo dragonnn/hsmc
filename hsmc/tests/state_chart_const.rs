@@ -40,7 +40,7 @@ Diag {
 }
 }
 
-impl DiagActions for DiagActionContext<'_> {
+impl DiagIdleActions for DiagActionContext<'_> {
     fn enter_idle(&mut self) {}
 }
 

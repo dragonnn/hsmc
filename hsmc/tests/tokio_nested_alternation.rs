@@ -61,13 +61,19 @@ statechart! {
     }
 }
 
-impl MActions for MActionContext<'_> {
+impl MLearnMoreActions for MActionContext<'_> {
     async fn enter_lm(&mut self) {
         self.log.lock().unwrap().push("LM");
     }
+}
+
+impl MInfoActions for MActionContext<'_> {
     async fn enter_info(&mut self) {
         self.log.lock().unwrap().push("INFO");
     }
+}
+
+impl MListeningActions for MActionContext<'_> {
     async fn enter_listening(&mut self) {
         self.log.lock().unwrap().push("LISTEN");
     }

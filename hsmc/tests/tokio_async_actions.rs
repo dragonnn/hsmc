@@ -32,7 +32,7 @@ AsyncM {
 }
 }
 
-impl AsyncMActions for AsyncMActionContext<'_> {
+impl AsyncMWorkingActions for AsyncMActionContext<'_> {
     async fn on_enter_working(&mut self) {
         // A real `.await` that suspends the task.
         tokio::time::sleep(Duration::from_millis(5)).await;

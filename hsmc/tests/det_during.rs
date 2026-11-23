@@ -46,9 +46,12 @@ statechart! {
     }
 }
 
-impl DuActions for DuActionContext<'_> {
+impl DuWorkingActions for DuActionContext<'_> {
     async fn w_in(&mut self) {}
     async fn w_out(&mut self) {}
+}
+
+impl DuIdleActions for DuActionContext<'_> {
     async fn i_in(&mut self) {}
     async fn i_out(&mut self) {}
 }

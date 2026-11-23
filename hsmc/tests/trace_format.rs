@@ -116,9 +116,12 @@ async fn tick(_buf: &mut u32) -> Ev {
     Ev::Step
 }
 
-impl TraceFmtActions for TraceFmtActionContext<'_> {
+impl TraceFmtIdleActions for TraceFmtActionContext<'_> {
     async fn idle_in(&mut self) {}
     async fn idle_out(&mut self) {}
+}
+
+impl TraceFmtActiveActions for TraceFmtActionContext<'_> {
     async fn active_in(&mut self) {}
     async fn active_out(&mut self) {}
     async fn bump(&mut self) {

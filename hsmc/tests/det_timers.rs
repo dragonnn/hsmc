@@ -43,9 +43,12 @@ statechart! {
     }
 }
 
-impl TimActions for TimActionContext<'_> {
+impl TimCountingActions for TimActionContext<'_> {
     async fn c_in(&mut self) {}
     async fn c_out(&mut self) {}
+}
+
+impl TimDoneActions for TimActionContext<'_> {
     async fn d_in(&mut self) {}
     async fn log_tick(&mut self) {}
 }

@@ -74,17 +74,29 @@ impl NameActions for NameActionContext<'_> {
     fn mainentry2(&mut self) { self.log.push("mainentry2".into()); }
     fn mainentry3(&mut self) { self.log.push("mainentry3".into()); }
     fn mainexit(&mut self)   { self.log.push("mainexit".into()); }
-    fn blah_entry(&mut self) { self.log.push("blah_entry".into()); }
-    fn blah_exit(&mut self)  { self.log.push("blah_exit".into()); }
-    fn x_action(&mut self)   { self.log.push("x_action".into()); }
     fn asldkfj(&mut self)    { self.log.push("asldkfj".into()); }
     fn asldkfj1(&mut self)   { self.log.push("asldkfj1".into()); }
     fn asldkfj2(&mut self)   { self.log.push("asldkfj2".into()); }
+}
+
+impl NameFirstStateActions for NameActionContext<'_> {
+    fn blah_entry(&mut self) { self.log.push("blah_entry".into()); }
+    fn blah_exit(&mut self)  { self.log.push("blah_exit".into()); }
+    fn x_action(&mut self)   { self.log.push("x_action".into()); }
+}
+
+impl NameSubSubSubStateActions for NameActionContext<'_> {
+    fn subsubsub_entry(&mut self) { self.log.push("subsubsub_entry".into()); }
+}
+
+impl NameXSecondStateActions for NameActionContext<'_> {
     fn x_entry(&mut self)    { self.log.push("x_entry".into()); }
+}
+
+impl NameSomeEndStateActions for NameActionContext<'_> {
     fn end_entry(&mut self)  { self.log.push("end_entry".into()); }
     fn end_exit(&mut self)   { self.log.push("end_exit".into()); }
     fn something(&mut self)  { self.log.push("something".into()); }
-    fn subsubsub_entry(&mut self) { self.log.push("subsubsub_entry".into()); }
 }
 
 fn main() {

@@ -40,7 +40,7 @@ async fn ticker(tick_field: &mut u32) -> Ev {
     Ev::Tick
 }
 
-impl DuringMActions for DuringMActionContext<'_> {
+impl DuringMRunningActions for DuringMActionContext<'_> {
     async fn saw_tick(&mut self) {
         self.seen_tick = self.seen_tick.wrapping_add(1);
         let n = self.seen_tick;

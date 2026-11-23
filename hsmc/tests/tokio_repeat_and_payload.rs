@@ -48,7 +48,7 @@ statechart! {
     }
 }
 
-impl TkActions for TkActionContext<'_> {
+impl TkRunningActions for TkActionContext<'_> {
     async fn on_tick(&mut self) {
         *self.ticks.lock().unwrap() += 1;
     }

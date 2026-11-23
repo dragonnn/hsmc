@@ -54,10 +54,19 @@ statechart! {
 impl ReplayActions for ReplayActionContext<'_> {
     async fn root_in(&mut self) {}
     async fn root_out(&mut self) {}
+}
+
+impl ReplayIdleActions for ReplayActionContext<'_> {
     async fn idle_in(&mut self) {}
     async fn idle_out(&mut self) {}
+}
+
+impl ReplayActiveActions for ReplayActionContext<'_> {
     async fn active_in(&mut self) {}
     async fn active_out(&mut self) {}
+}
+
+impl ReplaySubActions for ReplayActionContext<'_> {
     async fn sub_in(&mut self) {}
     async fn sub_out(&mut self) {}
 }

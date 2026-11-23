@@ -53,7 +53,7 @@ async fn child_tick(f: &mut u32) -> Ev {
     Ev::Child
 }
 
-impl HierarchyActions for HierarchyActionContext<'_> {
+impl HierarchyOuterActions for HierarchyActionContext<'_> {
     async fn on_parent(&mut self) {
         self.saw_parent = self.saw_parent.wrapping_add(1);
     }

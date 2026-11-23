@@ -66,12 +66,24 @@ statechart! {
 impl Init4Actions for Init4ActionContext<'_> {
     async fn r_in(&mut self) {}
     async fn r_out(&mut self) {}
+}
+
+impl Init4AActions for Init4ActionContext<'_> {
     async fn a_in(&mut self) {}
     async fn a_out(&mut self) {}
+}
+
+impl Init4BActions for Init4ActionContext<'_> {
     async fn b_in(&mut self) {}
     async fn b_out(&mut self) {}
+}
+
+impl Init4CActions for Init4ActionContext<'_> {
     async fn c_in(&mut self) {}
     async fn c_out(&mut self) {}
+}
+
+impl Init4DActions for Init4ActionContext<'_> {
     async fn d_in(&mut self) {}
     async fn d_out(&mut self) {}
 }
