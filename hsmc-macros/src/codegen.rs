@@ -757,7 +757,26 @@ fn emit_embassy_race_arms_timer_only(ir: &Ir) -> Vec<TokenStream> {
     arms
 }
 
+// Resolve gates in the macro crate, whose features are forwarded by hsmc.
+// Emitting caller-side feature names would select the consuming crate's
+// features instead. A disabled gate works on items, fields and statements.
+fn feature_gate(enabled: bool) -> TokenStream {
+    if enabled {
+        TokenStream::new()
+    } else {
+        quote! { #[cfg(any())] }
+    }
+}
+
 pub fn generate(ir: &Ir) -> TokenStream {
+    let tokio_cfg = feature_gate(cfg!(feature = "tokio"));
+    let embassy_cfg = feature_gate(cfg!(feature = "embassy"));
+    let non_embassy_cfg = feature_gate(!cfg!(feature = "embassy"));
+    let async_enabled = cfg!(any(feature = "tokio", feature = "embassy"));
+    let async_cfg = feature_gate(async_enabled);
+    let sync_cfg = feature_gate(!async_enabled);
+    let journal_cfg = feature_gate(cfg!(feature = "journal"));
+
     let machine_name = &ir.name;
     let state_enum_name = format_ident!("{}State", machine_name);
     let actions_trait_name = format_ident!("{}Actions", machine_name);
@@ -1904,13 +1923,13 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // `with_queue_capacity_internal()`, `sender()` is `&self`.
     let tokio_sender_impl = if emit_sender {
         quote! {
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             #[doc = #sender_doc]
             #[derive(Clone)]
             pub struct #sender_name {
                 tx: ::tokio::sync::mpsc::UnboundedSender<#ev_ty>,
             }
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             impl #sender_name {
                 /// Send an event to the machine. Returns `Err(AlreadyTerminated)` if
                 /// the machine has terminated and the receiver has been dropped.
@@ -1919,7 +1938,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Obtain a clonable, `Send` handle for pushing events into this
                 /// machine. The channel is eagerly created in `new()` (§4.4).
@@ -1936,7 +1955,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
     } else {
         // Timer-only: no Sender, no tokio channel, but keep a timer-only run().
         quote! {
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Run the machine to completion, honouring timers and
                 /// `during:` activities. No event channel is generated
@@ -2000,7 +2019,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // the `tokio` or `embassy` features for a working `sender()`.
     let default_sender_impl = if emit_sender {
         quote! {
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             #[doc = #sender_doc]
             ///
             /// **Limitation:** without the `tokio` or `embassy` feature, the
@@ -2010,7 +2029,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             /// feature to get a working cross-thread sender.
             #[derive(Clone)]
             pub struct #sender_name { _priv: () }
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             impl #sender_name {
                 /// Always returns [`HsmcError::AlreadyTerminated`] under
                 /// default features — enable `tokio` or `embassy` for a
@@ -2020,7 +2039,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Non-functional stub under default features — see
                 /// [`#sender_name`] for the limitation.
@@ -2041,14 +2060,14 @@ pub fn generate(ir: &Ir) -> TokenStream {
             // Compile-time assertion: the event type must be `Send` under the
             // embassy feature (its sender handle is `Send + Sync`, which
             // requires `E: Send`). Fails with a pointer to `#ev_ty`.
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             #[allow(dead_code, non_upper_case_globals)]
             const #send_assert_name: fn() = || {
                 fn __assert_send<T: ::core::marker::Send>() {}
                 __assert_send::<#ev_ty>();
             };
 
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             #[doc = #sender_doc]
             ///
             /// `Copy + Send + Sync`-able handle around a
@@ -2058,7 +2077,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             pub struct #sender_name {
                 inner: ::embassy_sync::channel::SendDynamicSender<'static, #ev_ty>,
             }
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl #sender_name {
                 /// Non-blocking send. Returns
                 /// [`HsmcError::QueueFull`] if the channel has no room. Safe
@@ -2092,7 +2111,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl #machine_name<8> {
                 /// Construct a new machine with the default event-queue
                 /// capacity of 8, bound to a user-declared static
@@ -2144,7 +2163,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Channel-less variant of
                 /// [`with_queue_capacity`](Self::with_queue_capacity)
@@ -2154,7 +2173,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Obtain a clonable, `Send` handle for pushing events into
                 /// this machine from ISRs or other Embassy tasks. The channel
@@ -2181,7 +2200,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         // Timer-only machines (no `events:` declared) have no channel. Keep
         // the existing timer-driven run().
         quote! {
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl #machine_name<8> {
                 /// Construct a timer-only machine (no `events:` declared).
                 pub fn new(ctx: #ctx_ty) -> Self {
@@ -2193,7 +2212,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             impl<const __QN: usize> #machine_name<__QN> {
                 /// Timer-only run loop (no `events:` declared) using
                 /// `embassy_time::Timer`, plus any `during:` activities
@@ -2255,9 +2274,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // when the user provides an `&'static embassy_sync::channel::Channel`.
     let embassy_fields = if emit_sender {
         quote! {
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             __embassy_rx: Option<::embassy_sync::channel::SendDynamicReceiver<'static, #ev_ty>>,
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             __embassy_tx: Option<::embassy_sync::channel::SendDynamicSender<'static, #ev_ty>>,
         }
     } else {
@@ -2265,9 +2284,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
     };
     let embassy_ctor = if emit_sender {
         quote! {
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             __embassy_rx: None,
-            #[cfg(feature = "embassy")]
+            #embassy_cfg
             __embassy_tx: None,
         }
     } else {
@@ -2278,9 +2297,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // compiled in AND this machine has events.
     let tokio_fields = if emit_sender {
         quote! {
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             __tokio_tx: Option<::tokio::sync::mpsc::UnboundedSender<#ev_ty>>,
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             __tokio_rx: Option<::tokio::sync::mpsc::UnboundedReceiver<#ev_ty>>,
         }
     } else {
@@ -2288,9 +2307,9 @@ pub fn generate(ir: &Ir) -> TokenStream {
     };
     let tokio_ctor = if emit_sender {
         quote! {
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             __tokio_tx: { let (tx, _rx) = ::tokio::sync::mpsc::unbounded_channel(); Some(tx) },
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             __tokio_rx: None,
         }
     } else {
@@ -2299,7 +2318,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
     // We need to create tx+rx together; do it via a small helper.
     let tokio_ctor_setup = if emit_sender {
         quote! {
-            #[cfg(feature = "tokio")]
+            #tokio_cfg
             {
                 let (tx, rx) = ::tokio::sync::mpsc::unbounded_channel();
                 __self.__tokio_tx = Some(tx);
@@ -2321,7 +2340,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         }
 
         #[doc = #actions_trait_doc]
-        #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+        #sync_cfg
         #[allow(non_snake_case)]
         pub trait #actions_trait_name {
             #(#action_methods_sync)*
@@ -2334,7 +2353,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
         /// peripheral calls (I2C flush, radio ops, etc.). Returned futures
         /// must be `Send` for compatibility with multi-threaded / Send
         /// executors.
-        #[cfg(any(feature = "tokio", feature = "embassy"))]
+        #async_cfg
         #[allow(non_snake_case)]
         pub trait #actions_trait_name {
             #(#action_methods_async)*
@@ -2615,12 +2634,12 @@ pub fn generate(ir: &Ir) -> TokenStream {
 
         impl #machine_name<8> {
             /// Construct a new machine with the default event-queue capacity of 8 (§4.4).
-            #[cfg(not(feature = "embassy"))]
+            #non_embassy_cfg
             pub fn new(ctx: #ctx_ty) -> Self {
                 <#machine_name<8>>::with_queue_capacity_internal(ctx)
             }
             /// Construct a machine with a custom event-queue capacity `__N` (§5.2).
-            #[cfg(not(feature = "embassy"))]
+            #non_embassy_cfg
             pub fn with_queue_capacity<const __N: usize>(ctx: #ctx_ty) -> #machine_name<__N> {
                 <#machine_name<__N>>::with_queue_capacity_internal(ctx)
             }
@@ -2695,7 +2714,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             /// of every observable atom — entries, exits, action calls,
             /// during start/cancel, timer arm/cancel/fire, queued emits,
             /// event delivery, transitions, and termination.
-            #[cfg(feature = "journal")]
+            #journal_cfg
             pub fn journal(&self) -> &[::hsmc::TraceEvent] {
                 self.__journal.events()
             }
@@ -2703,13 +2722,13 @@ pub fn generate(ir: &Ir) -> TokenStream {
             /// Take and clear the deterministic execution journal. Useful
             /// at test boundaries to compare against an expected sequence
             /// without lingering events from earlier runs.
-            #[cfg(feature = "journal")]
+            #journal_cfg
             pub fn take_journal(&mut self) -> ::hsmc::Journal {
                 self.__journal.take()
             }
 
             /// Drop all journal events without returning them.
-            #[cfg(feature = "journal")]
+            #journal_cfg
             pub fn clear_journal(&mut self) {
                 self.__journal.clear();
             }
@@ -2732,7 +2751,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             /// Under the `tokio` or `embassy` feature, `step()` is `async`
             /// because action methods are `async fn` and must be `.await`ed
             /// during dispatch. Under default features it stays sync.
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             #[allow(unused_variables)]
             pub fn step(&mut self, elapsed: ::hsmc::Duration) -> Option<::hsmc::Duration> {
                 if self.terminated { return None; }
@@ -2798,7 +2817,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 #timer_min_remaining_expr
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             #[allow(unused_variables)]
             pub async fn step(&mut self, elapsed: ::hsmc::Duration) -> Option<::hsmc::Duration> {
                 if self.terminated { return None; }
@@ -2870,7 +2889,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             /// processed" semantics (a drop-in replacement for the
             /// `send + drain` pattern). For cross-task / ISR injection use
             /// [`sender()`](Self::sender) instead.
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             pub async fn dispatch(&mut self, event: #ev_ty) -> ::core::result::Result<(), ::hsmc::HsmcError> {
                 if self.terminated { return Err(::hsmc::HsmcError::AlreadyTerminated); }
                 self.queue.push_back(event).map_err(|_| ::hsmc::HsmcError::QueueFull)?;
@@ -2892,7 +2911,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             //   1 → event-driven (reason_a = event id)
             //   2 → timer-driven (reason_a = state id, reason_b = timer id)
             //   0 → internal/other (unused today; reserved)
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             #[allow(unused_variables, clippy::too_many_arguments)]
             fn run_handlers(
                 &mut self,
@@ -2929,7 +2948,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             #[allow(unused_variables, clippy::too_many_arguments)]
             async fn run_handlers(
                 &mut self,
@@ -2966,7 +2985,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn run_action(&mut self, aid: u16, event: Option<&#ev_ty>) {
                 // Trace + journal emission for action calls now happens at
                 // the call sites (`#observe_action_entry`,
@@ -3001,7 +3020,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 __dispatch(&mut actx, aid, event);
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn run_action(&mut self, aid: u16, event: Option<&#ev_ty>) {
                 // See sync run_action above — observation happens at call sites.
                 let ctx = &mut self.ctx;
@@ -3047,7 +3066,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             // Returns true if any state was newly entered (i.e., the
             // enter_path was non-empty). False on an up-transition, where
             // the target was already on the active path.
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn apply_path(&mut self, from: u16, target: u16) -> bool {
                 let idx = (from as usize) * #n_states + (target as usize);
                 // SAFETY: from and target are state ids produced by codegen
@@ -3080,7 +3099,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn apply_path(&mut self, from: u16, target: u16) -> bool {
                 let idx = (from as usize) * #n_states + (target as usize);
                 // SAFETY: see sync branch — same invariant.
@@ -3106,7 +3125,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn transition(&mut self, _source_matched_state: u16, target: u16) {
                 let from = self.current.unwrap_or(target);
                 let entered = self.apply_path(from, target);
@@ -3116,7 +3135,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn transition(&mut self, _source_matched_state: u16, target: u16) {
                 let from = self.current.unwrap_or(target);
                 let entered = self.apply_path(from, target).await;
@@ -3126,21 +3145,21 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn enter_path(&mut self, root: u16) {
                 self.enter_state_no_descent(root);
                 if self.terminated { return; }
                 self.follow_defaults();
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn enter_path(&mut self, root: u16) {
                 self.enter_state_no_descent(root).await;
                 if self.terminated { return; }
                 self.follow_defaults().await;
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             #[allow(unused_variables)]
             fn enter_state_no_descent(&mut self, sid: u16) {
                 #observe_enter_began
@@ -3160,7 +3179,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 #observe_entered
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             #[allow(unused_variables)]
             async fn enter_state_no_descent(&mut self, sid: u16) {
                 #observe_enter_began
@@ -3187,7 +3206,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
             // ancestor, or anywhere else — not just a direct child. The
             // compile-time default-graph cycle check guarantees the loop
             // terminates.
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn follow_defaults(&mut self) {
                 while let Some(cur) = self.current {
                     // SAFETY: cur is a state id < #n_states (codegen
@@ -3210,7 +3229,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn follow_defaults(&mut self) {
                 while let Some(cur) = self.current {
                     // SAFETY: see sync branch — same invariant.
@@ -3228,7 +3247,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             #[allow(unused_variables)]
             fn exit_state(&mut self, sid: u16) {
                 // Per spec §"Entry and exit ordering":
@@ -3249,7 +3268,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 #observe_exited
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             #[allow(unused_variables)]
             async fn exit_state(&mut self, sid: u16) {
                 #observe_exit_began
@@ -3290,7 +3309,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn do_terminate(&mut self) {
                 if let Some(cur) = self.current {
                     // SAFETY: cur < #n_states (codegen invariant). The
@@ -3311,7 +3330,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 #observe_terminated
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn do_terminate(&mut self) {
                 if let Some(cur) = self.current {
                     // SAFETY: see sync branch — same invariant.
@@ -3331,7 +3350,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 #observe_terminated
             }
 
-            #[cfg(not(any(feature = "tokio", feature = "embassy")))]
+            #sync_cfg
             fn dispatch_trigger(&mut self, state: u16, kind: u8, trig: u16) {
                 if let Some((actions, target)) = __handler_lookup(state, kind, trig) {
                     // Timer-driven dispatch: no event payload, reason = timer.
@@ -3339,7 +3358,7 @@ pub fn generate(ir: &Ir) -> TokenStream {
                 }
             }
 
-            #[cfg(any(feature = "tokio", feature = "embassy"))]
+            #async_cfg
             async fn dispatch_trigger(&mut self, state: u16, kind: u8, trig: u16) {
                 if let Some((actions, target)) = __handler_lookup(state, kind, trig) {
                     self.run_handlers(state, actions, target, None, 2u8, state, trig).await;

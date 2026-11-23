@@ -14,8 +14,8 @@ autoexamples = false
 
 [features]
 default = []
-tokio = ["dep:tokio"]
-embassy = ["dep:embassy-sync", "dep:embassy-time", "dep:embassy-futures"]
+tokio = ["dep:tokio", "hsmc-macros/tokio"]
+embassy = ["dep:embassy-sync", "dep:embassy-time", "dep:embassy-futures", "hsmc-macros/embassy"]
 # Auto-tracing sinks — every chart emits `__chart_observe!` calls
 # unconditionally; whichever of these sinks you enable is what gets
 # textual log lines. Pick zero, one, or any combination — the
@@ -36,16 +36,16 @@ trace-tracing = ["dep:tracing"]
 # same vocabulary.
 # Requires `alloc` (the journal grows dynamically). Off by default —
 # zero overhead and no `alloc` requirement when not enabled.
-journal       = []
+journal       = ["hsmc-macros/journal"]
 
 [dependencies]
 hsmc-macros = { path = "../hsmc-macros", version = "0.6.0" }
-heapless = "0.8"
+heapless = "0.9.4"
 tokio = { version = "1", features = ["sync", "time", "rt", "macros"], optional = true }
 embassy-sync = { version = "0.8", optional = true }
 embassy-time = { version = "0.5", optional = true }
 embassy-futures = { version = "0.1", optional = true }
-defmt = { version = "0.3", optional = true }
+defmt = { version = "1.2.0", optional = true }
 log = { version = "0.4", optional = true }
 tracing = { version = "0.1", default-features = false, optional = true }
 
@@ -54,7 +54,7 @@ trybuild = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "test-util"] }
 
 [target.'cfg(target_os = "linux")'.dev-dependencies]
-gungraun = "0.18"
+gungraun = "0.20"
 
 [[example]]
 name = "microwave"

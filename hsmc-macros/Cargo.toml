@@ -14,6 +14,12 @@ categories = ["rust-patterns", "development-tools::procedural-macro-helpers"]
 [lib]
 proc-macro = true
 
+[features]
+default = []
+tokio = []
+embassy = []
+journal = []
+
 [dependencies]
 syn = { version = "2", features = ["full", "extra-traits"] }
 quote = "1"
